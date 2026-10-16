@@ -1,6 +1,6 @@
 # VaultShare
 
-\### AI-Powered Secure File Sharing Platform
+### AI-Powered Secure File Sharing Platform
 
 
 
@@ -12,7 +12,7 @@ The project also explores real-world cybersecurity concepts by demonstrating how
 
 
 
-> \*\*Project Status:\*\* In Development 🚧  
+> \*\*Project Status:\*\* In Development   
 
 > \*\*Project Type:\*\* Full Stack Development Lab
 
@@ -22,7 +22,7 @@ The project also explores real-world cybersecurity concepts by demonstrating how
 
 
 
-\## Problem Statement
+## Problem Statement
 
 
 
@@ -34,7 +34,7 @@ VaultShare aims to address this problem through secure file storage, controlled 
 
 
 
-\## Key Features
+## Key Features
 
 
 
@@ -54,11 +54,11 @@ VaultShare aims to address this problem through secure file storage, controlled 
 
 
 
-\*Features will be implemented and refined as development progresses.\*
+*Features will be implemented and refined as development progresses.\*
 
 
 
-\## AI Integration
+## AI Integration
 
 
 
@@ -74,7 +74,7 @@ AI-generated results will be treated as suggestions rather than guaranteed secur
 
 
 
-\## Security Approach
+## Security Approach
 
 
 
@@ -98,7 +98,7 @@ The project will explore and implement security mechanisms such as:
 
 
 
-\### Security Testing
+### Security Testing
 
 
 
@@ -114,7 +114,7 @@ All attack simulations will be conducted against the project's own test environm
 
 
 
-\## 🛠️ Planned Technology Stack
+## 🛠️ Planned Technology Stack
 
 
 
@@ -140,7 +140,7 @@ All attack simulations will be conducted against the project's own test environm
 
 
 
-\## High-Level Architecture
+## High-Level Architecture
 
 
 
@@ -184,7 +184,7 @@ PostgreSQL + File Storage
 
 
 
-\## Sustainable Development Goal
+## Sustainable Development Goal
 
 
 
@@ -196,7 +196,7 @@ VaultShare supports safer information exchange and privacy-conscious handling of
 
 
 
-\## Project Team
+## Project Team
 
 
 
@@ -212,7 +212,7 @@ Developed as a group project for the Full Stack Development Lab.
 
 
 
-\## Future Scope
+## Future Scope
 
 
 
