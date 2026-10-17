@@ -1,122 +1,417 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
+
+type User = {
+  name: string;
+  email: string;
+};
+
+type SharedFile = {
+  id: number;
+  name: string;
+  recipient: string;
+  expires: string;
+  status: "ACTIVE" | "REVOKED";
+};
+
+const demoShares: SharedFile[] = [
+  {
+    id: 1,
+    name: "project-proposal.pdf",
+    recipient: "teammate@example.com",
+    expires: "Oct 25, 2026",
+    status: "ACTIVE",
+  },
+  {
+    id: 2,
+    name: "design-notes.docx",
+    recipient: "alex@example.com",
+    expires: "Oct 20, 2026",
+    status: "ACTIVE",
+  },
+];
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [screen, setScreen] = useState<"login" | "signup" | "dashboard" | "profile">(
+    "login"
+  );
+  const [user, setUser] = useState<User | null>(null);
+  const [shares, setShares] = useState(demoShares);
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [recipient, setRecipient] = useState("");
+  const [expiry, setExpiry] = useState("7");
+
+  function handleAuth(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    // DEMO ONLY: this does not validate credentials or create a real account.
+    const displayName =
+      screen === "signup" ? name.trim() : email.split("@")[0];
+
+    setUser({ name: displayName || "VaultShare user", email });
+    setScreen("dashboard");
+    setPassword("");
+  }
+
+  function handleShare(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!selectedFile || !recipient.trim()) return;
+
+    const expiration = new Date();
+    expiration.setDate(expiration.getDate() + Number(expiry));
+
+    const newShare: SharedFile = {
+      id: Date.now(),
+      name: selectedFile.name,
+      recipient: recipient.trim(),
+      expires: expiration.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
+      status: "ACTIVE",
+    };
+
+    setShares((current) => [newShare, ...current]);
+    setSelectedFile(null);
+    setRecipient("");
+
+    // This creates a visual demo entry only—not a real share link.
+  }
+
+  function revokeShare(id: number) {
+    setShares((current) =>
+      current.map((share) =>
+        share.id === id ? { ...share, status: "REVOKED" } : share
+      )
+    );
+  }
+
+  function logout() {
+    setUser(null);
+    setScreen("login");
+    setEmail("");
+    setPassword("");
+  }
+
+  if (screen === "login" || screen === "signup") {
+    const isSignup = screen === "signup";
+
+    return (
+      <main className="auth-page">
+        <div className="auth-brand">
+          <div className="brand-mark">V<span>!</span></div>
+          <span>VAULTSHARE</span>
+        </div>
+
+        <section className="auth-card">
+          <div className="auth-card-top">
+            <span className="eyebrow">PRIVATE BY DESIGN / 01</span>
+            <span className="auth-sticker">NO<br />SNOOPING.</span>
+          </div>
+
+          <h1>{isSignup ? "MAKE AN\nACCOUNT." : "GOOD TO\nSEE YOU."}</h1>
+          <p className="auth-subtitle">
+            {isSignup
+              ? "Create your account. Share files on your terms."
+              : "Log in to manage your secure file shares."}
+          </p>
+
+          <form className="auth-form" onSubmit={handleAuth}>
+            {isSignup && (
+              <label>
+                YOUR NAME
+                <input
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder="e.g. Sam"
+                  autoComplete="name"
+                  required
+                />
+              </label>
+            )}
+
+            <label>
+              EMAIL ADDRESS
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="you@example.com"
+                autoComplete="email"
+                required
+              />
+            </label>
+
+            <label>
+              PASSWORD
+              <input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="Enter a password"
+                autoComplete={isSignup ? "new-password" : "current-password"}
+                minLength={8}
+                required
+              />
+              {isSignup && <small>Use at least 8 characters for this demo.</small>}
+            </label>
+
+            <button className="brutal-button" type="submit">
+              {isSignup ? "CREATE DEMO ACCOUNT" : "LOG IN"} <span>↗</span>
+            </button>
+          </form>
+
+          <div className="auth-switch">
+            {isSignup ? "Already have an account?" : "New to VaultShare?"}
+            <button
+              type="button"
+              onClick={() => setScreen(isSignup ? "login" : "signup")}
+            >
+              {isSignup ? "Log in" : "Create account"}
+            </button>
+          </div>
+
+          <p className="demo-warning">
+            Prototype only: authentication is simulated. Don’t use a real password.
+          </p>
+        </section>
+
+        <footer className="auth-footer">
+          <span>VAULTSHARE © 2026</span>
+          <span>SHARE WITH CARE ✳</span>
+        </footer>
+      </main>
+    );
+  }
+
+  if (!user) return null;
+
+  if (screen === "profile") {
+    return (
+      <main className="app-shell">
+        <Sidebar user={user} screen={screen} setScreen={setScreen} logout={logout} />
+
+        <section className="main-content">
+          <Topbar />
+          <div className="page-heading">
+            <p className="eyebrow">ACCOUNT / SETTINGS</p>
+            <h1>YOUR PROFILE.</h1>
+            <p>Manage the account details shown in your VaultShare profile.</p>
+          </div>
+
+          <section className="profile-card">
+            <div className="profile-avatar">{user.name.slice(0, 2).toUpperCase()}</div>
+            <div className="profile-fields">
+              <label>
+                DISPLAY NAME
+                <input
+                  value={user.name}
+                  onChange={(event) =>
+                    setUser({ ...user, name: event.target.value })
+                  }
+                />
+              </label>
+              <label>
+                EMAIL
+                <input value={user.email} readOnly />
+                <small>Email editing will need backend verification.</small>
+              </label>
+              <div className="profile-note">
+                <strong>ACCOUNT SECURITY</strong>
+                <span>Real password changes and account verification are not connected yet.</span>
+              </div>
+              <button className="brutal-button" onClick={() => setScreen("dashboard")}>
+                BACK TO SHARING <span>↗</span>
+              </button>
+            </div>
+          </section>
+        </section>
+      </main>
+    );
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+    <main className="app-shell">
+      <Sidebar user={user} screen={screen} setScreen={setScreen} logout={logout} />
+
+      <section className="main-content">
+        <Topbar />
+
+        <section className="hero">
+          <div>
+            <p className="eyebrow">YOUR PRIVATE SHARING SPACE</p>
+            <h1>SHARE IT.<br /><span>SECURE IT.</span></h1>
+            <p className="hero-description">
+              Send files to the right people. Set the rules. Stay in control.
+            </p>
+          </div>
+          <div className="hero-sticker">
+            <span>ACCESS</span>
+            <strong>ON<br />YOUR<br />TERMS.</strong>
+          </div>
+        </section>
+
+        <section className="share-panel">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">01 / CREATE A SHARE</p>
+              <h2>WHO NEEDS THE FILE?</h2>
+            </div>
+            <span className="mini-stamp">CONTROL ACCESS</span>
+          </div>
+
+          <form onSubmit={handleShare}>
+            <label className="file-drop">
+              <span className="upload-icon">＋</span>
+              <strong>{selectedFile ? selectedFile.name : "Choose a file to share"}</strong>
+              <small>Select a file from your device</small>
+              <input
+                type="file"
+                onChange={(event) =>
+                  setSelectedFile(event.target.files?.[0] ?? null)
+                }
+              />
+            </label>
+
+            <div className="share-fields">
+              <label>
+                RECIPIENT’S VAULTSHARE EMAIL
+                <input
+                  type="email"
+                  value={recipient}
+                  onChange={(event) => setRecipient(event.target.value)}
+                  placeholder="recipient@example.com"
+                  required
+                />
+              </label>
+
+              <label>
+                LINK EXPIRY
+                <select value={expiry} onChange={(event) => setExpiry(event.target.value)}>
+                  <option value="1">1 day</option>
+                  <option value="7">7 days</option>
+                  <option value="30">30 days</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="security-strip">
+              <span>✳ RECIPIENT LOGIN REQUIRED</span>
+              <span>✳ EXPIRING ACCESS</span>
+            </div>
+
+            <button className="brutal-button" type="submit" disabled={!selectedFile}>
+              CREATE DEMO SHARE <span>↗</span>
+            </button>
+
+            <p className="demo-warning">
+              Demo: this adds a mock share to the list. It does not upload the file,
+              notify the recipient, or create a secure link.
+            </p>
+          </form>
+        </section>
+
+        <section className="shares-section">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">02 / ACCESS YOU CONTROL</p>
+              <h2>SHARED BY YOU.</h2>
+            </div>
+            <span className="file-count">{shares.length} SHARES</span>
+          </div>
+
+          <div className="share-list">
+            {shares.map((share) => (
+              <article className="share-row" key={share.id}>
+                <div className="file-icon">↗</div>
+                <div className="share-info">
+                  <strong>{share.name}</strong>
+                  <small>TO: {share.recipient}</small>
+                  <small>EXPIRES: {share.expires}</small>
+                </div>
+                <span className={`file-status ${share.status === "ACTIVE" ? "yellow" : "muted"}`}>
+                  {share.status}
+                </span>
+                {share.status === "ACTIVE" && (
+                  <button
+                    className="revoke-button"
+                    onClick={() => revokeShare(share.id)}
+                  >
+                    REVOKE
+                  </button>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <footer className="footer">
+          <span>VAULTSHARE © 2026</span>
+          <span>SHARE WITH CARE ✳</span>
+        </footer>
       </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    </main>
+  );
 }
 
-export default App
+function Sidebar({
+  user,
+  screen,
+  setScreen,
+  logout,
+}: {
+  user: User;
+  screen: string;
+  setScreen: (screen: "login" | "signup" | "dashboard" | "profile") => void;
+  logout: () => void;
+}) {
+  return (
+    <aside className="sidebar">
+      <div className="brand-mark">V<span>!</span></div>
+      <p className="brand-name">VAULTSHARE</p>
+      <p className="sidebar-caption">YOUR FILES. YOUR RULES.</p>
+
+      <nav className="nav-menu">
+        <button
+          className={`nav-item ${screen === "dashboard" ? "active" : ""}`}
+          onClick={() => setScreen("dashboard")}
+        >
+          ↗ <span>Sharing</span>
+        </button>
+        <button
+          className={`nav-item ${screen === "profile" ? "active" : ""}`}
+          onClick={() => setScreen("profile")}
+        >
+          ◉ <span>My profile</span>
+        </button>
+      </nav>
+
+      <div className="sidebar-bottom">
+        <div className="avatar">{user.name.slice(0, 2).toUpperCase()}</div>
+        <div className="sidebar-user">
+          <strong>{user.name}</strong>
+          <small>{user.email}</small>
+          <button onClick={logout}>LOG OUT ↗</button>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function Topbar() {
+  return (
+    <header className="topbar">
+      <span className="breadcrumb">VAULT / SECURE SHARING</span>
+      <span className="topbar-status"><i /> DEMO MODE</span>
+    </header>
+  );
+}
+
+export default App;
