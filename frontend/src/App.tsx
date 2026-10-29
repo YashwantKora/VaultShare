@@ -31,6 +31,24 @@ const demoShares: SharedFile[] = [
   },
 ];
 
+const siftTips = {
+  sharing: {
+    label: "Safer sharing",
+    text: "Share with a specific person, use the shortest practical expiry, and revoke access when it is no longer needed.",
+  },
+  links: {
+    label: "Check links",
+    text: "Before opening a shared-file link, confirm who sent it and check that the web address matches the service you expect.",
+  },
+  files: {
+    label: "Handle files",
+    text: "Be cautious with unexpected attachments. Keep your software updated and avoid enabling macros or other active content unless you trust the source.",
+  },
+} as const;
+
+const siftTipKeys = ["sharing", "links", "files"] as const;
+type SiftTipKey = (typeof siftTipKeys)[number];
+
 function App() {
   const [screen, setScreen] = useState<"login" | "signup" | "dashboard" | "profile">(
     "login"
@@ -45,6 +63,7 @@ function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [recipient, setRecipient] = useState("");
   const [expiry, setExpiry] = useState("7");
+  const [activeSiftTip, setActiveSiftTip] = useState<SiftTipKey>("sharing");
 
   function handleAuth(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -203,7 +222,7 @@ function App() {
           <div className="page-heading">
             <p className="eyebrow">ACCOUNT / SETTINGS</p>
             <h1>YOUR PROFILE.</h1>
-            <p>Manage the account details shown in your VaultShare profile.</p>
+            {/* <p>Manage the account details shown in your VaultShare profile.</p> */}
           </div>
 
           <section className="profile-card">
@@ -221,12 +240,12 @@ function App() {
               <label>
                 EMAIL
                 <input value={user.email} readOnly />
-                <small>Email editing will need backend verification.</small>
+                {/* //<small>Email editing will need backend verification.</small> */}
               </label>
-              <div className="profile-note">
-                <strong>ACCOUNT SECURITY</strong>
-                <span>Real password changes and account verification are not connected yet.</span>
-              </div>
+              {/* <div className="profile-note"> */}
+                {/* <strong>ACCOUNT SECURITY</strong> */}
+                {/* <span>Real password changes and account verification are not connected yet.</span> */}
+              {/* </div> */}
               <button className="brutal-button" onClick={() => setScreen("dashboard")}>
                 BACK TO SHARING <span>↗</span>
               </button>
@@ -302,26 +321,82 @@ function App() {
               </label>
             </div>
 
-            <div className="security-strip">
+            {/* <div className="security-strip">
               <span>✳ RECIPIENT LOGIN REQUIRED</span>
               <span>✳ EXPIRING ACCESS</span>
-            </div>
+            </div> */}
 
             <button className="brutal-button" type="submit" disabled={!selectedFile}>
               CREATE DEMO SHARE <span>↗</span>
             </button>
 
-            <p className="demo-warning">
+            {/* <p className="demo-warning">
               Demo: this adds a mock share to the list. It does not upload the file,
               notify the recipient, or create a secure link.
-            </p>
+            </p> */}
           </form>
+        </section>
+
+        <section className="sift-panel" aria-labelledby="sift-heading">
+          <div className="sift-main">
+            <div className="sift-heading">
+              <span className="sift-mark" aria-hidden="true">S</span>
+              <div>
+                <p className="eyebrow">YOUR SECURITY SIDEKICK</p>
+                <h2 id="sift-heading">MEET SIFT.</h2>
+              </div>
+              <span className="sift-preview-badge">UI PREVIEW</span>
+            </div>
+
+            <p className="sift-description">
+              SIFT is designed to flag potential file risks and summarize supported
+              documents. File scanning and AI analysis are not connected yet, so
+              nothing is inspected in this preview.
+            </p>
+
+            <div className="sift-capabilities" aria-label="Planned SIFT features">
+              <span>01 / FILE RISK CHECKS</span>
+              <span>02 / DOCUMENT SUMMARIES</span>
+            </div>
+
+            <div className="sift-scan-preview" aria-label="Example scan statuses">
+              <div>
+                <span>FILE SECURITY CHECK</span>
+                <strong>NOT CONNECTED</strong>
+              </div>
+              <div>
+                <span>DOCUMENT SUMMARY</span>
+                <strong>NOT CONNECTED</strong>
+              </div>
+            </div>
+          </div>
+
+          <aside className="sift-tips">
+            <p className="eyebrow">QUICK SECURITY GUIDE</p>
+            <h3>Small habits. Safer sharing.</h3>
+            <div className="sift-tip-tabs" aria-label="Security guide topics">
+              {siftTipKeys.map((key) => (
+                <button
+                  className={activeSiftTip === key ? "active" : ""}
+                  key={key}
+                  type="button"
+                  aria-pressed={activeSiftTip === key}
+                  onClick={() => setActiveSiftTip(key)}
+                >
+                  {siftTips[key].label}
+                </button>
+              ))}
+            </div>
+            <p className="sift-tip-copy" aria-live="polite">
+              {siftTips[activeSiftTip].text}
+            </p>
+          </aside>
         </section>
 
         <section className="shares-section">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">02 / ACCESS YOU CONTROL</p>
+              {/* <p className="eyebrow">02 / ACCESS YOU CONTROL</p> */}
               <h2>SHARED BY YOU.</h2>
             </div>
             <span className="file-count">{shares.length} SHARES</span>
@@ -409,7 +484,7 @@ function Topbar() {
   return (
     <header className="topbar">
       <span className="breadcrumb">VAULT / SECURE SHARING</span>
-      <span className="topbar-status"><i /> DEMO MODE</span>
+      {/* <span className="topbar-status"><i /> DEMO MODE</span> */}
     </header>
   );
 }
