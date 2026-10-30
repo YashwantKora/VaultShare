@@ -14,6 +14,17 @@ type SharedFile = {
   status: "ACTIVE" | "REVOKED";
 };
 
+type ReceivedShare = {
+  id: number;
+  name: string;
+  sender: string;
+  received: string;
+  expires: string;
+  status: "PENDING" | "ACCEPTED" | "DECLINED";
+  siftOpened: boolean;
+  message: string;
+};
+
 const demoShares: SharedFile[] = [
   {
     id: 1,
@@ -28,6 +39,29 @@ const demoShares: SharedFile[] = [
     recipient: "alex@example.com",
     expires: "Oct 20, 2026",
     status: "ACTIVE",
+  },
+];
+
+const demoReceivedShares: ReceivedShare[] = [
+  {
+    id: 101,
+    name: "Q4-financial-overview.pdf",
+    sender: "morgan@example.com",
+    received: "Today",
+    expires: "Nov 6, 2026",
+    status: "PENDING",
+    siftOpened: false,
+    message: "",
+  },
+  {
+    id: 102,
+    name: "team-photo.jpg",
+    sender: "casey@example.com",
+    received: "Yesterday",
+    expires: "Nov 2, 2026",
+    status: "PENDING",
+    siftOpened: false,
+    message: "",
   },
 ];
 
@@ -50,11 +84,15 @@ const siftTipKeys = ["sharing", "links", "files"] as const;
 type SiftTipKey = (typeof siftTipKeys)[number];
 
 function App() {
-  const [screen, setScreen] = useState<"login" | "signup" | "dashboard" | "profile">(
-    "login"
-  );
+  const [screen, setScreen] = useState<
+    "login" | "signup" | "dashboard" | "receiving" | "profile"
+  >("login");
   const [user, setUser] = useState<User | null>(null);
   const [shares, setShares] = useState(demoShares);
+  const [receivedShares, setReceivedShares] = useState(demoReceivedShares);
+  const pendingReceivedCount = receivedShares.filter(
+    (share) => share.status === "PENDING"
+  ).length;
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -108,6 +146,17 @@ function App() {
     setShares((current) =>
       current.map((share) =>
         share.id === id ? { ...share, status: "REVOKED" } : share
+      )
+    );
+  }
+
+  function updateReceivedShare(
+    id: number,
+    updates: Partial<ReceivedShare>
+  ) {
+    setReceivedShares((current) =>
+      current.map((share) =>
+        share.id === id ? { ...share, ...updates } : share
       )
     );
   }
@@ -197,9 +246,9 @@ function App() {
             </button>
           </div>
 
-          <p className="demo-warning">
+          {/* <p className="demo-warning">
             Prototype only: authentication is simulated. Don’t use a real password.
-          </p>
+          </p> */}
         </section>
 
         <footer className="auth-footer">
@@ -215,7 +264,13 @@ function App() {
   if (screen === "profile") {
     return (
       <main className="app-shell">
-        <Sidebar user={user} screen={screen} setScreen={setScreen} logout={logout} />
+        <Sidebar
+          user={user}
+          screen={screen}
+          setScreen={setScreen}
+          logout={logout}
+          pendingReceivedCount={pendingReceivedCount}
+        />
 
         <section className="main-content">
           <Topbar />
@@ -256,9 +311,161 @@ function App() {
     );
   }
 
+  if (screen === "receiving") {
+    return (
+      <main className="app-shell">
+        <Sidebar
+          user={user}
+          screen={screen}
+          setScreen={setScreen}
+          logout={logout}
+          pendingReceivedCount={pendingReceivedCount}
+        />
+
+        <section className="main-content">
+          <Topbar />
+
+          <section className="receiving-heading">
+            <p className="eyebrow">INCOMING / FILES SHARED WITH YOU</p>
+            <h1>YOUR INBOX.</h1>
+            <p>Review incoming files, ask SIFT for help, then choose what to do.</p>
+          </section>
+
+          <section className="received-section" aria-labelledby="received-heading">
+            <div className="section-heading">
+              <div>
+                <h2 id="received-heading">SHARED WITH YOU.</h2>
+              </div>
+              <span className="file-count">{pendingReceivedCount} NEW</span>
+            </div>
+
+            {receivedShares.length === 0 ? (
+              <div className="received-empty">
+                <strong>ALL CAUGHT UP.</strong>
+                <span>New file shares will show up here.</span>
+              </div>
+            ) : (
+              <div className="received-list">
+                {receivedShares.map((share) => (
+                  <article className="received-card" key={share.id}>
+                    <div className="received-card-heading">
+                      <div className="file-icon" aria-hidden="true">↙</div>
+                      <div className="received-info">
+                        <strong>{share.name}</strong>
+                        <small>FROM: {share.sender}</small>
+                        <small>RECEIVED: {share.received} · EXPIRES: {share.expires}</small>
+                      </div>
+                      <span className={`file-status ${share.status === "PENDING" ? "yellow" : share.status === "ACCEPTED" ? "accepted" : "muted"}`}>
+                        {share.status}
+                      </span>
+                    </div>
+
+                    {share.status === "PENDING" && (
+                      <div className="received-actions">
+                        <button
+                          className="sift-scan-button"
+                          type="button"
+                          onClick={() =>
+                            updateReceivedShare(share.id, {
+                              siftOpened: !share.siftOpened,
+                              message: "",
+                            })
+                          }
+                        >
+                          <span>S</span> {share.siftOpened ? "CLOSE SIFT PREVIEW" : "SCAN WITH SIFT"}
+                        </button>
+                        <button
+                          className="received-decline"
+                          type="button"
+                          onClick={() =>
+                            updateReceivedShare(share.id, {
+                              status: "DECLINED",
+                              message: "",
+                            })
+                          }
+                        >
+                          DECLINE
+                        </button>
+                        <button
+                          className="received-accept"
+                          type="button"
+                          onClick={() =>
+                            updateReceivedShare(share.id, {
+                              status: "ACCEPTED",
+                              message: "",
+                            })
+                          }
+                        >
+                          ACCEPT FILE <span>↗</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {share.status === "ACCEPTED" && (
+                      <div className="received-actions">
+                        <button
+                          className="received-secondary"
+                          type="button"
+                          onClick={() =>
+                            updateReceivedShare(share.id, {
+                              message: "File preview is not connected in this demo.",
+                            })
+                          }
+                        >
+                          VIEW FILE
+                        </button>
+                        <button
+                          className="received-accept"
+                          type="button"
+                          onClick={() =>
+                            updateReceivedShare(share.id, {
+                              message: "File download is not connected in this demo.",
+                            })
+                          }
+                        >
+                          DOWNLOAD FILE <span>↓</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {share.siftOpened && share.status === "PENDING" && (
+                      <div className="received-sift-preview">
+                        <span className="received-sift-label">SIFT / PREVIEW</span>
+                        <strong>SCANNING ISN’T CONNECTED YET.</strong>
+                        <p>
+                          SIFT’s file risk check and document summary will appear
+                          here when the AI service is connected.
+                        </p>
+                      </div>
+                    )}
+
+                    {share.message && (
+                      <p className="received-message" role="status">{share.message}</p>
+                    )}
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <footer className="footer">
+            <span>VAULTSHARE © 2026</span>
+            <span>SHARE WITH CARE ✳</span>
+          </footer>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="app-shell">
-      <Sidebar user={user} screen={screen} setScreen={setScreen} logout={logout} />
+      <Sidebar
+        user={user}
+        screen={screen}
+        setScreen={setScreen}
+        logout={logout}
+        pendingReceivedCount={pendingReceivedCount}
+      />
 
       <section className="main-content">
         <Topbar />
@@ -280,7 +487,7 @@ function App() {
         <section className="share-panel">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">01 / CREATE A SHARE</p>
+              {/* <p className="eyebrow">01 / CREATE A SHARE</p> */}
               <h2>WHO NEEDS THE FILE?</h2>
             </div>
             <span className="mini-stamp">CONTROL ACCESS</span>
@@ -317,6 +524,7 @@ function App() {
                   <option value="1">1 day</option>
                   <option value="7">7 days</option>
                   <option value="30">30 days</option>
+                  <option value="30">Custom</option>
                 </select>
               </label>
             </div>
@@ -345,18 +553,18 @@ function App() {
                 <p className="eyebrow">YOUR SECURITY SIDEKICK</p>
                 <h2 id="sift-heading">MEET SIFT.</h2>
               </div>
-              <span className="sift-preview-badge">UI PREVIEW</span>
+              {/* <span className="sift-preview-badge">UI PREVIEW</span> */}
             </div>
 
             <p className="sift-description">
               SIFT is designed to flag potential file risks and summarize supported
-              documents. File scanning and AI analysis are not connected yet, so
-              nothing is inspected in this preview.
+              documents.
             </p>
 
             <div className="sift-capabilities" aria-label="Planned SIFT features">
               <span>01 / FILE RISK CHECKS</span>
               <span>02 / DOCUMENT SUMMARIES</span>
+              <span>03 / Talk to SIFT</span>
             </div>
 
             <div className="sift-scan-preview" aria-label="Example scan statuses">
@@ -390,6 +598,18 @@ function App() {
             <p className="sift-tip-copy" aria-live="polite">
               {siftTips[activeSiftTip].text}
             </p>
+
+            <div className="sift-search">
+              <label htmlFor="sift-search-input" className="sr-only">
+                Ask SIFT
+              </label>
+              <input
+                id="sift-search-input"
+                type="text"
+                placeholder="Ask SIFT..."
+                aria-label="Ask SIFT"
+              />
+            </div>
           </aside>
         </section>
 
@@ -441,11 +661,15 @@ function Sidebar({
   screen,
   setScreen,
   logout,
+  pendingReceivedCount,
 }: {
   user: User;
   screen: string;
-  setScreen: (screen: "login" | "signup" | "dashboard" | "profile") => void;
+  setScreen: (
+    screen: "login" | "signup" | "dashboard" | "receiving" | "profile"
+  ) => void;
   logout: () => void;
+  pendingReceivedCount: number;
 }) {
   return (
     <aside className="sidebar">
@@ -459,6 +683,16 @@ function Sidebar({
           onClick={() => setScreen("dashboard")}
         >
           ↗ <span>Sharing</span>
+        </button>
+        <button
+          className={`nav-item ${screen === "receiving" ? "active" : ""}`}
+          onClick={() => setScreen("receiving")}
+          aria-label={`Receiving${pendingReceivedCount > 0 ? `, ${pendingReceivedCount} new shares` : ""}`}
+        >
+          ↓ <span>Receiving</span>
+          {pendingReceivedCount > 0 && (
+            <span className="nav-count">{pendingReceivedCount}</span>
+          )}
         </button>
         <button
           className={`nav-item ${screen === "profile" ? "active" : ""}`}

@@ -17,6 +17,18 @@ body {
   min-width: 320px;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 button,
 input,
 select {
@@ -103,6 +115,18 @@ select:focus-visible {
   color: #171717;
   border-color: white;
   box-shadow: 4px 4px 0 #3155ff;
+}
+
+.nav-count {
+  min-width: 20px;
+  margin-left: auto;
+  padding: 2px 5px;
+  background: #ff4fa3;
+  color: #171717;
+  border: 1px solid currentColor;
+  font-size: 10px;
+  line-height: 1.2;
+  text-align: center;
 }
 
 .sidebar-bottom {
@@ -562,6 +586,214 @@ input::placeholder {
   line-height: 1.55;
 }
 
+.sift-search {
+  margin-top: 18px;
+}
+
+.sift-search input {
+  width: 100%;
+  padding: 12px 14px;
+  background: #ffffff;
+  color: #171717;
+  border: 2px solid #171717;
+  box-shadow: 4px 4px 0 #171717;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.sift-search input::placeholder {
+  color: #666666;
+}
+
+.sift-search input:focus {
+  outline: 3px solid #3155ff;
+  outline-offset: 2px;
+}
+
+.receiving-heading {
+  padding: 42px 0 28px;
+}
+
+.receiving-heading h1 {
+  margin: 0;
+  color: #000;
+  font-size: clamp(42px, 6vw, 76px);
+  line-height: 0.92;
+  letter-spacing: -4px;
+}
+
+.receiving-heading > p:last-child {
+  margin: 18px 0 0;
+  color: #444;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.received-section {
+  margin-top: 8px;
+}
+
+.received-list {
+  display: grid;
+  gap: 14px;
+}
+
+.received-card {
+  min-width: 0;
+  padding: 18px;
+  background: #fff;
+  border: 2px solid #171717;
+  box-shadow: 5px 5px 0 #171717;
+}
+
+.received-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.received-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.received-info strong,
+.received-info small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.received-info strong {
+  margin-bottom: 5px;
+  color: #000;
+  font-size: 16px;
+}
+
+.received-info small {
+  margin-top: 4px;
+  color: #666;
+  font-size: 10px;
+}
+
+.file-status.accepted {
+  background: #d7f5de;
+}
+
+.received-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 17px 0 0 55px;
+}
+
+.sift-scan-button,
+.received-decline,
+.received-accept,
+.received-secondary {
+  min-height: 38px;
+  padding: 8px 11px;
+  border: 2px solid #171717;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.sift-scan-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #fff;
+  color: #171717;
+  box-shadow: 3px 3px 0 #171717;
+}
+
+.sift-scan-button span {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  background: #f4ff3f;
+  border: 1px solid #171717;
+  font-size: 13px;
+}
+
+.received-decline {
+  background: #fff;
+  color: #171717;
+}
+
+.received-accept {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #f4ff3f;
+  color: #171717;
+  box-shadow: 3px 3px 0 #171717;
+}
+
+.received-secondary {
+  background: #fff;
+  color: #171717;
+}
+
+.sift-scan-button:hover,
+.received-accept:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #171717;
+}
+
+.received-sift-preview {
+  display: grid;
+  gap: 7px;
+  margin: 17px 0 0 55px;
+  padding: 13px;
+  background: #f5f1e8;
+  border: 2px solid #171717;
+}
+
+.received-sift-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.received-sift-preview strong {
+  font-size: 12px;
+}
+
+.received-sift-preview p,
+.received-message {
+  margin: 0;
+  color: #555;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.received-message {
+  margin: 14px 0 0 55px;
+  padding: 10px 12px;
+  background: #f5f1e8;
+  border-left: 3px solid #3155ff;
+}
+
+.received-empty {
+  display: grid;
+  gap: 7px;
+  padding: 22px;
+  background: #fff;
+  border: 2px solid #171717;
+  box-shadow: 5px 5px 0 #171717;
+}
+
+.received-empty strong {
+  font-size: 14px;
+}
+
+.received-empty span {
+  color: #555;
+  font-size: 12px;
+}
+
 .shares-section {
   margin-top: 36px;
 }
@@ -610,7 +842,7 @@ input::placeholder {
 }
 
 .share-info strong {
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .share-info small {
@@ -920,6 +1152,28 @@ input::placeholder {
   .share-row {
     flex-wrap: wrap;
     gap: 9px;
+  }
+
+  .received-card {
+    padding: 14px;
+  }
+
+  .received-card-heading {
+    flex-wrap: wrap;
+  }
+
+  .received-info {
+    flex-basis: calc(100% - 60px);
+  }
+
+  .received-actions,
+  .received-sift-preview,
+  .received-message {
+    margin-left: 0;
+  }
+
+  .received-actions > button {
+    flex: 1 1 auto;
   }
 
   .share-info {
